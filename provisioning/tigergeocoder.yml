@@ -1,0 +1,78 @@
+---
+- hosts: all
+  gather_facts: yes
+  sudo: yes
+
+  vars_files:
+    - vars/tiger-geocoder-postgres.yml
+    - vars/tiger-mounted-drive.yml
+
+  # install postgres and postgis, mount a disk, change the data directory
+  pre_tasks:
+    - name: install postgres + dependencies
+      apt: "pkg={{item}} state=installed update_cache=yes"
+      with_items:
+          - postgresql
+          - postgresql-contrib
+          - postgis 
+          - postgresql-9.3-postgis-2.1
+          - unzip
+          - wget
+
+    - name: ensure the tiger mount directory exists
+      file: "state=directory path={{tiger_mount_point}} mode=0700 owner=postgres group=postgres"
+
+    - name: stop postgres
+      action: service name=postgresql state=stopped
+
+    - name: Create a ext4 filesystem if a mounted drive is specified
+      # Note: Using the 'force' parameter failed for local vms during testing.
+      # Alternatively creating a partition on the mounted disk requires interaction with the terminal,
+      # so running the command to format the entire mounted disk is the current behavior.
+      #filesystem: "fstype=ext4 dev={{tiger_mounted_drive_path}} force=yes"
+      command: "mkfs.ext4 -F {{tiger_mounted_drive_path}}"
+      when: tiger_mounted_drive_path is defined
+
+    - name: mount a drive if specified
+      mount: "name={{tiger_mount_point}} src={{tiger_mounted_drive_path}} fstype=ext4 state=mounted"
+      when: tiger_mounted_drive_path is defined
+
+    - name: ensure the tiger directory exists
+      file: "state=directory path={{tiger_data_directory}} mode=0700 owner=postgres group=postgres"
+
+    - name: ensure the postgres data directory exists
+      file: "state=directory path={{tiger_pg_data_directory}} mode=0700 owner=postgres group=postgres"
+
+    - name: change the data directory to a mounted drive in pgconf
+      lineinfile: dest={{tiger_pg_conf_file}} state=present regexp=^data_directory line=data_directory=\'{{tiger_pg_data_directory}}\'      
+      when: tiger_mounted_drive
+
+    - name: change the data directory to a mounted drive in pgconf
+      lineinfile: dest={{tiger_pg_conf_file}} state=present regexp=^data_directory line=data_directory=\'{{tiger_pg_data_directory}}\'
+      when: tiger_mounted_drive
+
+    - name: reconfigure the db with the new data directory
+      command: "/usr/lib/postgresql/9.3/bin/initdb -D {{tiger_pg_data_directory}}"
+      sudo: yes
+      sudo_user: postgres
+
+    - name: restart postgres
+      action: service name=postgresql state=started
+
+    - name: create tiger db
+      command: "psql -d postgres -U postgres -c 'CREATE DATABASE {{tiger_pg_db_name}}'"
+      sudo: yes
+      sudo_user: postgres
+
+    - name: install postgis extension
+      command: "psql -d {{tiger_pg_db_name}} -U postgres -c 'CREATE EXTENSION postgis'"
+      sudo: yes
+      sudo_user: postgres
+
+    - name: create extension postgis_topology
+      command: "psql -d {{tiger_pg_db_name}} -U postgres -c 'CREATE EXTENSION IF NOT EXISTS postgis_topology'"
+      sudo: yes
+      sudo_user: postgres
+
+  roles:
+    - tiger-geocoder

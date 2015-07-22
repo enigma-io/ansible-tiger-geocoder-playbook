@@ -1,0 +1,4 @@
+tiger_mounted_drive: true
+tiger_data_directory: /gisdata
+tiger_mount_point: /gisdata
+tiger_mounted_drive_path: "{{ lookup('env', 'tiger_mounted_drive_path')}}"

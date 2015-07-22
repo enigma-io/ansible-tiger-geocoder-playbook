@@ -1,0 +1,4 @@
+provisioning/roles/*
+.vagrant
+tmp/
+.pwd

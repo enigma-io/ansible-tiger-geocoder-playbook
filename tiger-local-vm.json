@@ -1,0 +1,13 @@
+{
+    "ram": 8096,
+    "cpu": 4,
+    "tiger_vb_mount": {
+        "path": "./tmp/tiger_mounted_drive.vdi",
+        "size": 524288,
+        "storagectl": "SATAController",
+        "port": 1,
+        "device": 0,
+        "type": "hdd"
+    }
+}
+

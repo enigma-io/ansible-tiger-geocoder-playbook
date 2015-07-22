@@ -1,0 +1,4 @@
+tiger_pg_conf_file: /etc/postgresql/9.3/main/postgresql.conf 
+tiger_pg_data_directory: /gisdata/pg
+tiger_pg_db_name: census
+tiger_pg_password: "{{ lookup('env', 'TIGER_DB_PASSWORD')}}"
