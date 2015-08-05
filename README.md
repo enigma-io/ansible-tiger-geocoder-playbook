@@ -13,7 +13,7 @@ This Ansible playbook provisions and installs the basic TIGER Geocoder/Postgis s
 * census place (place)
 * state (state)
 
-If you are launching a fresh AWS ec2 instance, you can just use our [Amazon Machine Image](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (id: ami-c5847eae). 
+If you are launching a fresh AWS ec2 instance, you can just use our [Amazon Machine Image](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (id: ami-fbd57790). 
 
 Since the AMI is the simplest solution, this playbook is perhaps most useful for someone who wants to run a local geocoder on a virtual machine, or someone who wants to add the geocoder to a pre-existing server. There are instructions for doing both of these things below.
 
