@@ -1,3 +1,5 @@
+# THIS PROJECT IS NO LONGER OFFICIALLY SUPPORTED BY ENIGMA
+
 # Ansible Playbook for the PostGIS TIGER Geocoder
 
 
